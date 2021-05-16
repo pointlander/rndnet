@@ -74,7 +74,7 @@ func (n Network) Inference(inputs, outputs []float32) {
 			columns = n[i+1].Columns
 		}
 		mask, values, factor :=
-			uint32((1<<bits.LeadingZeros(uint(layer.Columns)))-1),
+			uint32((1<<bits.TrailingZeros(uint(layer.Columns)))-1),
 			make([]float32, columns),
 			float32(math.Sqrt(2/float64(columns)))
 		for j, weight := range layer.Weights {
@@ -151,18 +151,18 @@ func main() {
 		var network Network
 		layer := Layer{
 			Columns: 4,
-			Weights: make([]float32, 16),
-			Biases:  make([]float32, 16),
+			Weights: make([]float32, 4),
+			Biases:  make([]float32, 4),
 			Rand:    Rand(LFSRInit + i),
 		}
-		factor := float32(math.Sqrt(2 / float64(16)))
+		factor := float32(math.Sqrt(2 / float64(4)))
 		for i := range layer.Weights {
 			layer.Weights[i] = (2*rnd.Float32() - 1) * factor
 		}
 		network = append(network, layer)
 
 		layer = Layer{
-			Columns: 16,
+			Columns: 4,
 			Weights: make([]float32, 3),
 			Biases:  make([]float32, 3),
 			Rand:    Rand(LFSRInit + i),
