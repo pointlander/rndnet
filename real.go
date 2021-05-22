@@ -75,8 +75,8 @@ func (n RealNetwork) Copy() RealNetwork {
 }
 
 // RealNetworkModel is the real network model
-func RealNetworkModel() {
-	rnd := Rand(LFSRInit)
+func RealNetworkModel(seed int) float64 {
+	rnd := Rand(LFSRInit + seed)
 	type Genome struct {
 		Network RealNetwork
 		Fitness float32
@@ -88,7 +88,7 @@ func RealNetworkModel() {
 			Columns: 4,
 			Weights: make([]float32, 4),
 			Biases:  make([]float32, 4),
-			Rand:    Rand(LFSRInit + i),
+			Rand:    Rand(LFSRInit + i + seed),
 		}
 		factor := float32(math.Sqrt(2 / float64(4)))
 		for i := range layer.Weights {
@@ -100,7 +100,7 @@ func RealNetworkModel() {
 			Columns: 4,
 			Weights: make([]float32, 3),
 			Biases:  make([]float32, 3),
-			Rand:    Rand(LFSRInit + i),
+			Rand:    Rand(LFSRInit + i + seed),
 		}
 		factor = float32(math.Sqrt(2 / float64(3)))
 		for i := range layer.Weights {
@@ -232,5 +232,7 @@ func RealNetworkModel() {
 		}
 		total++
 	}
-	fmt.Println(float64(misses) / float64(total))
+	quality := float64(misses) / float64(total)
+	fmt.Println(quality)
+	return quality
 }

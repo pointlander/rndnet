@@ -76,8 +76,8 @@ func (n ComplexNetwork) Copy() ComplexNetwork {
 }
 
 // ComplexNetworkModel is the complex network
-func ComplexNetworkModel() {
-	rnd := Rand(LFSRInit)
+func ComplexNetworkModel(seed int) float64 {
+	rnd := Rand(LFSRInit + seed)
 	type Genome struct {
 		Network ComplexNetwork
 		Fitness float32
@@ -89,7 +89,7 @@ func ComplexNetworkModel() {
 			Columns: 4,
 			Weights: make([]complex64, 4),
 			Biases:  make([]complex64, 4),
-			Rand:    Rand(LFSRInit + i),
+			Rand:    Rand(LFSRInit + i + seed),
 		}
 		factor := float32(math.Sqrt(2 / float64(4)))
 		for i := range layer.Weights {
@@ -101,7 +101,7 @@ func ComplexNetworkModel() {
 			Columns: 4,
 			Weights: make([]complex64, 3),
 			Biases:  make([]complex64, 3),
-			Rand:    Rand(LFSRInit + i),
+			Rand:    Rand(LFSRInit + i + seed),
 		}
 		factor = float32(math.Sqrt(2 / float64(3)))
 		for i := range layer.Weights {
@@ -248,5 +248,7 @@ func ComplexNetworkModel() {
 		}
 		total++
 	}
-	fmt.Println(float64(misses) / float64(total))
+	quality := float64(misses) / float64(total)
+	fmt.Println(quality)
+	return quality
 }

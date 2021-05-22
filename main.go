@@ -19,6 +19,8 @@ var (
 	Shared = flag.Bool("shared", false, "real network with share weights")
 	// Complex uses the complex network
 	Complex = flag.Bool("complex", false, "complex network")
+	// Search search for the best seed
+	Search = flag.Bool("search", false, "search for the best seed")
 )
 
 const (
@@ -83,12 +85,45 @@ func main() {
 		}
 		return
 	} else if *Real {
-		RealNetworkModel()
+		if *Search {
+			min, seed := 1.0, 0
+			for i := 0; i < 256; i++ {
+				quality := RealNetworkModel(i * NumGenomes)
+				if quality < min {
+					min, seed = quality, i
+				}
+			}
+			fmt.Println(min, seed)
+		} else {
+			RealNetworkModel(0 * NumGenomes)
+		}
 		return
 	} else if *Complex {
-		ComplexNetworkModel()
+		if *Search {
+			min, seed := 1.0, 0
+			for i := 0; i < 256; i++ {
+				quality := ComplexNetworkModel(i * NumGenomes)
+				if quality < min {
+					min, seed = quality, i
+				}
+			}
+			fmt.Println(min, seed)
+		} else {
+			ComplexNetworkModel(236 * NumGenomes)
+		}
 		return
 	} else if *Shared {
-		SharedNetworkModel()
+		if *Search {
+			min, seed := 1.0, 0
+			for i := 0; i < 256; i++ {
+				quality := SharedNetworkModel(i * NumGenomes)
+				if quality < min {
+					min, seed = quality, i
+				}
+			}
+			fmt.Println(min, seed)
+		} else {
+			SharedNetworkModel(122 * NumGenomes)
+		}
 	}
 }

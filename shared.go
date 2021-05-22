@@ -69,8 +69,8 @@ func (n SharedNetwork) Copy() SharedNetwork {
 }
 
 // SharedNetworkModel is the real network with shared weights
-func SharedNetworkModel() {
-	rnd := Rand(LFSRInit)
+func SharedNetworkModel(seed int) float64 {
+	rnd := Rand(LFSRInit + seed)
 	type Genome struct {
 		Network SharedNetwork
 		Fitness float32
@@ -82,7 +82,7 @@ func SharedNetworkModel() {
 			Rows:    4,
 			Columns: 4,
 			Weights: make([]float32, 4),
-			Rand:    Rand(LFSRInit + i),
+			Rand:    Rand(LFSRInit + i + seed),
 		}
 		factor := float32(math.Sqrt(2 / float64(4)))
 		for i := range layer.Weights {
@@ -94,7 +94,7 @@ func SharedNetworkModel() {
 			Rows:    3,
 			Columns: 4,
 			Weights: make([]float32, 4),
-			Rand:    Rand(LFSRInit + i),
+			Rand:    Rand(LFSRInit + i + seed),
 		}
 		factor = float32(math.Sqrt(2 / float64(3)))
 		for i := range layer.Weights {
@@ -223,5 +223,7 @@ func SharedNetworkModel() {
 		}
 		total++
 	}
-	fmt.Println(float64(misses) / float64(total))
+	quality := float64(misses) / float64(total)
+	fmt.Println(quality)
+	return quality
 }
