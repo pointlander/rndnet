@@ -89,7 +89,7 @@ func ComplexNetworkModel(seed int) float64 {
 			Columns: 4,
 			Weights: make([]complex64, 4),
 			Biases:  make([]complex64, 4),
-			Rand:    Rand(LFSRInit + i + seed),
+			Rand:    Rand(LFSRInit + i + seed + NumGenomes),
 		}
 		factor := float32(math.Sqrt(2 / float64(4)))
 		for i := range layer.Weights {
@@ -101,7 +101,7 @@ func ComplexNetworkModel(seed int) float64 {
 			Columns: 4,
 			Weights: make([]complex64, 3),
 			Biases:  make([]complex64, 3),
-			Rand:    Rand(LFSRInit + i + seed),
+			Rand:    Rand(LFSRInit + i + seed + 2*NumGenomes),
 		}
 		factor = float32(math.Sqrt(2 / float64(3)))
 		for i := range layer.Weights {

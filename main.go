@@ -133,24 +133,24 @@ func main() {
 		if *Search {
 			process(RealNetworkModel)
 		} else {
-			// 0.02 201 12
-			RealNetworkModel(201 * NumGenomes)
+			// 0.02 135 14
+			RealNetworkModel(135 * NumGenomes)
 		}
 		return
 	} else if *Complex {
 		if *Search {
 			process(ComplexNetworkModel)
 		} else {
-			// 0.05333333333333334 236 6
-			ComplexNetworkModel(236 * NumGenomes)
+			// 0.05333333333333334 186 1
+			ComplexNetworkModel(186 * NumGenomes)
 		}
 		return
 	} else if *Shared {
 		if *Search {
-			// 0.05333333333333334 122 1
+			// 0.06 152 1
 			process(SharedNetworkModel)
 		} else {
-			SharedNetworkModel(122 * NumGenomes)
+			SharedNetworkModel(152 * NumGenomes)
 		}
 	}
 }

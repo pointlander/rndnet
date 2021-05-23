@@ -82,7 +82,7 @@ func SharedNetworkModel(seed int) float64 {
 			Rows:    4,
 			Columns: 4,
 			Weights: make([]float32, 4),
-			Rand:    Rand(LFSRInit + i + seed),
+			Rand:    Rand(LFSRInit + i + seed + NumGenomes),
 		}
 		factor := float32(math.Sqrt(2 / float64(4)))
 		for i := range layer.Weights {
@@ -94,7 +94,7 @@ func SharedNetworkModel(seed int) float64 {
 			Rows:    3,
 			Columns: 4,
 			Weights: make([]float32, 4),
-			Rand:    Rand(LFSRInit + i + seed),
+			Rand:    Rand(LFSRInit + i + seed + 2*NumGenomes),
 		}
 		factor = float32(math.Sqrt(2 / float64(3)))
 		for i := range layer.Weights {
