@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"math"
+	"runtime"
 )
 
 var (
@@ -62,6 +63,50 @@ func (r *Rand) Uint32() uint32 {
 func main() {
 	flag.Parse()
 
+	type Result struct {
+		Seed    int
+		Quality float64
+	}
+	process := func(model func(seed int) float64) {
+		results := make(chan Result, runtime.NumCPU())
+		routine := func(seed int) {
+			results <- Result{
+				Seed:    seed,
+				Quality: model(seed * NumGenomes),
+			}
+		}
+		min, seed, count, j, flight := 1.0, 0, 0, 0, 0
+		for i := 0; i < runtime.NumCPU() && j < 256; i++ {
+			go routine(j)
+			j++
+			flight++
+		}
+		for j < 256 {
+			result := <-results
+			flight--
+			if result.Quality < min {
+				min, seed = result.Quality, result.Seed
+			}
+			if result.Quality < .1 {
+				count++
+			}
+
+			go routine(j)
+			j++
+			flight++
+		}
+		for i := 0; i < flight; i++ {
+			result := <-results
+			if result.Quality < min {
+				min, seed = result.Quality, result.Seed
+			}
+			if result.Quality < .1 {
+				count++
+			}
+		}
+		fmt.Println(min, seed, count)
+	}
+
 	if *LFSR {
 		// https://en.wikipedia.org/wiki/Linear-feedback_shift_register
 		// https://users.ece.cmu.edu/~koopman/lfsr/index.html
@@ -86,42 +131,24 @@ func main() {
 		return
 	} else if *Real {
 		if *Search {
-			min, seed := 1.0, 0
-			for i := 0; i < 256; i++ {
-				quality := RealNetworkModel(i * NumGenomes)
-				if quality < min {
-					min, seed = quality, i
-				}
-			}
-			fmt.Println(min, seed)
+			process(RealNetworkModel)
 		} else {
-			RealNetworkModel(0 * NumGenomes)
+			// 0.02 201 12
+			RealNetworkModel(201 * NumGenomes)
 		}
 		return
 	} else if *Complex {
 		if *Search {
-			min, seed := 1.0, 0
-			for i := 0; i < 256; i++ {
-				quality := ComplexNetworkModel(i * NumGenomes)
-				if quality < min {
-					min, seed = quality, i
-				}
-			}
-			fmt.Println(min, seed)
+			process(ComplexNetworkModel)
 		} else {
+			// 0.05333333333333334 236 6
 			ComplexNetworkModel(236 * NumGenomes)
 		}
 		return
 	} else if *Shared {
 		if *Search {
-			min, seed := 1.0, 0
-			for i := 0; i < 256; i++ {
-				quality := SharedNetworkModel(i * NumGenomes)
-				if quality < min {
-					min, seed = quality, i
-				}
-			}
-			fmt.Println(min, seed)
+			// 0.05333333333333334 122 1
+			process(SharedNetworkModel)
 		} else {
 			SharedNetworkModel(122 * NumGenomes)
 		}

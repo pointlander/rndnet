@@ -157,7 +157,6 @@ func RealNetworkModel(seed int) float64 {
 			return genomes[i].Fitness < genomes[j].Fitness
 		})
 		genomes = genomes[:NumGenomes]
-		fmt.Println(i, genomes[0].Fitness)
 		i++
 		if i > 127 {
 			break
@@ -233,6 +232,6 @@ func RealNetworkModel(seed int) float64 {
 		total++
 	}
 	quality := float64(misses) / float64(total)
-	fmt.Println(quality)
+	fmt.Println(genomes[0].Fitness, quality)
 	return quality
 }
