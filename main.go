@@ -16,6 +16,8 @@ var (
 	LFSR = flag.Bool("lfsr", false, "find a lfsr")
 	// Real uses the real network
 	Real = flag.Bool("real", false, "real network")
+	// Random is a random neural network
+	Random = flag.Bool("random", false, "randome network")
 	// Shared uses the real network with shared weights
 	Shared = flag.Bool("shared", false, "real network with share weights")
 	// Complex uses the complex network
@@ -31,6 +33,8 @@ const (
 	LFSRInit = 0x55555555
 	// NumGenomes is the number of genomes
 	NumGenomes = 256
+	// SearchIterations is the number of search iterations
+	SearchIterations = 256
 )
 
 // Rand is a random number generator
@@ -76,12 +80,12 @@ func main() {
 			}
 		}
 		min, seed, count, j, flight := 1.0, 0, 0, 0, 0
-		for i := 0; i < runtime.NumCPU() && j < 256; i++ {
+		for i := 0; i < runtime.NumCPU() && j < SearchIterations; i++ {
 			go routine(j)
 			j++
 			flight++
 		}
-		for j < 256 {
+		for j < SearchIterations {
 			result := <-results
 			flight--
 			if result.Quality < min {
@@ -135,6 +139,14 @@ func main() {
 		} else {
 			// 0.02 135 14
 			RealNetworkModel(135 * NumGenomes)
+		}
+		return
+	} else if *Random {
+		if *Search {
+			process(RandomNetworkModel)
+		} else {
+			// 0.04666666666666667 1391 32
+			RandomNetworkModel(1391 * NumGenomes)
 		}
 		return
 	} else if *Complex {
