@@ -182,10 +182,12 @@ func main() {
 				sum := (2*rnd.Float32() - 1) * factor
 				for k := 0; k < Size; k++ {
 					if k == j {
-						sum += (2*rnd.Float32() - 1) * factor * activations[j]
-					} else if connections[k][j] < average-2*standardDeviation ||
-						connections[k][j] > average+2*standardDeviation {
-						sum += (2*rnd.Float32() - 1) * factor * activations[j]
+						sum += (2*rnd.Float32() - 1) * factor * activations[k]
+					} else if connections[j][k] < average-2*standardDeviation ||
+						connections[j][k] > average+2*standardDeviation {
+						sum += (2*rnd.Float32() - 1) * factor * activations[k]
+					} else {
+						_ = rnd.Float32()
 					}
 				}
 				e := float32(math.Exp(float64(sum)))
