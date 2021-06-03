@@ -177,17 +177,15 @@ func main() {
 		}
 		var average, standardDeviation float32
 		for i := 0; i < 1024; i++ {
-			rnd := Rand(LFSRInit)
+			rnd := Rand(LFSRInit + 3*Size*Size)
 			for j := 0; j < Size; j++ {
 				sum := (2*rnd.Float32() - 1) * factor
 				for k := 0; k < Size; k++ {
-					if k == j {
-						sum += (2*rnd.Float32() - 1) * factor * activations[k]
-					} else if connections[j][k] < average-2*standardDeviation ||
-						connections[j][k] > average+2*standardDeviation {
-						sum += (2*rnd.Float32() - 1) * factor * activations[k]
-					} else {
-						_ = rnd.Float32()
+					if weight := rnd.Float32(); k == j {
+						sum += (2*weight - 1) * factor * activations[k]
+					} else if (connections[j][k] < average-2*standardDeviation ||
+						connections[j][k] > average+2*standardDeviation) && i > 128 {
+						sum += (2*weight - 1) * factor * activations[k]
 					}
 				}
 				e := float32(math.Exp(float64(sum)))
@@ -200,7 +198,6 @@ func main() {
 					}
 					if a > .5 && b > .5 {
 						connections[j][k]++
-						connections[k][j]++
 					}
 				}
 			}
