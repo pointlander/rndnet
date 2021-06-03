@@ -22,6 +22,8 @@ var (
 	Shared = flag.Bool("shared", false, "real network with share weights")
 	// Complex uses the complex network
 	Complex = flag.Bool("complex", false, "complex network")
+	// RNN uses the recurrent neural network
+	RNN = flag.Bool("rnn", false, "recurrent neural network")
 	// Search search for the best seed
 	Search = flag.Bool("search", false, "search for the best seed")
 )
@@ -35,6 +37,8 @@ const (
 	NumGenomes = 256
 	// SearchIterations is the number of search iterations
 	SearchIterations = 256
+	// Size is the size of the recurrent neural network
+	Size = 8
 )
 
 // Rand is a random number generator
@@ -163,6 +167,52 @@ func main() {
 			process(SharedNetworkModel)
 		} else {
 			SharedNetworkModel(152 * NumGenomes)
+		}
+		return
+	} else if *RNN {
+		activations, next, connections, factor :=
+			make([]float32, Size), make([]float32, Size), make([][]float32, Size), float32(math.Sqrt(2/float64(Size)))
+		for i := range connections {
+			connections[i] = make([]float32, Size)
+		}
+		var average, standardDeviation float32
+		for i := 0; i < 1024; i++ {
+			rnd := Rand(LFSRInit)
+			for j := 0; j < Size; j++ {
+				sum := (2*rnd.Float32() - 1) * factor
+				for k := 0; k < Size; k++ {
+					if k == j {
+						sum += (2*rnd.Float32() - 1) * factor * activations[j]
+					} else if connections[k][j] < average-2*standardDeviation ||
+						connections[k][j] > average+2*standardDeviation {
+						sum += (2*rnd.Float32() - 1) * factor * activations[j]
+					}
+				}
+				e := float32(math.Exp(float64(sum)))
+				next[j] = e / (e + 1)
+			}
+			for j, a := range next {
+				for k, b := range next {
+					if j == k {
+						continue
+					}
+					if a > .5 && b > .5 {
+						connections[j][k]++
+						connections[k][j]++
+					}
+				}
+			}
+			copy(activations, next)
+			sum, sumSquared := float32(0), float32(0)
+			for _, a := range connections {
+				for _, b := range a {
+					sum += b
+					sumSquared += b * b
+				}
+			}
+			average = sum / (Size * Size)
+			standardDeviation = float32(math.Sqrt(float64(sumSquared/(Size*Size) - average*average)))
+			fmt.Println(average, standardDeviation, connections)
 		}
 	}
 }
