@@ -170,7 +170,7 @@ func main() {
 		}
 		return
 	} else if *RNN {
-		activations, next, connections, factor :=
+		inputs, outputs, connections, factor :=
 			make([]float32, Size), make([]float32, Size), make([][]float32, Size), float32(math.Sqrt(2/float64(Size)))
 		for i := range connections {
 			connections[i] = make([]float32, Size)
@@ -182,17 +182,17 @@ func main() {
 				sum := (2*rnd.Float32() - 1) * factor
 				for k := 0; k < Size; k++ {
 					if weight := rnd.Float32(); k == j {
-						sum += (2*weight - 1) * factor * activations[k]
+						sum += (2*weight - 1) * factor * inputs[k]
 					} else if (connections[j][k] < average-2*standardDeviation ||
 						connections[j][k] > average+2*standardDeviation) && i > 128 {
-						sum += (2*weight - 1) * factor * activations[k]
+						sum += (2*weight - 1) * factor * inputs[k]
 					}
 				}
 				e := float32(math.Exp(float64(sum)))
-				next[j] = e / (e + 1)
+				outputs[j] = e / (e + 1)
 			}
-			for j, a := range next {
-				for k, b := range next {
+			for j, a := range outputs {
+				for k, b := range outputs {
 					if j == k {
 						continue
 					}
@@ -201,7 +201,7 @@ func main() {
 					}
 				}
 			}
-			copy(activations, next)
+			copy(inputs, outputs)
 			sum, sumSquared := float32(0), float32(0)
 			for _, a := range connections {
 				for _, b := range a {
