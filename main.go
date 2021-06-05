@@ -170,8 +170,8 @@ func main() {
 		}
 		return
 	} else if *RNN {
-		inputs, outputs, connections, factor :=
-			make([]float32, Size), make([]float32, Size), make([][]float32, Size), float32(math.Sqrt(2/float64(Size)))
+		waves, inputs, outputs, connections, factor :=
+			make([]float32, 2), make([]float32, Size), make([]float32, Size), make([][]float32, Size), float32(math.Sqrt(2/float64(Size)))
 		for i := range connections {
 			connections[i] = make([]float32, Size)
 		}
@@ -180,11 +180,14 @@ func main() {
 			rnd := Rand(LFSRInit + 3*Size*Size)
 			for j := 0; j < Size; j++ {
 				sum := (2*rnd.Float32() - 1) * factor
+				for _, wave := range waves {
+					sum += (2*rnd.Float32() - 1) * factor * wave
+				}
 				for k := 0; k < Size; k++ {
 					if weight := rnd.Float32(); k == j {
 						sum += (2*weight - 1) * factor * inputs[k]
-					} else if (connections[j][k] < average-2*standardDeviation ||
-						connections[j][k] > average+2*standardDeviation) && i > 128 {
+					} else if connections[j][k] < average-2*standardDeviation ||
+						connections[j][k] > average+2*standardDeviation {
 						sum += (2*weight - 1) * factor * inputs[k]
 					}
 				}
@@ -211,7 +214,18 @@ func main() {
 			}
 			average = sum / (Size * Size)
 			standardDeviation = float32(math.Sqrt(float64(sumSquared/(Size*Size) - average*average)))
+			fmt.Println(i, outputs)
 			fmt.Println(average, standardDeviation, connections)
+			switch true {
+			case waves[0] == 0 && waves[1] == 0:
+				waves[0], waves[1] = 1, 0
+			case waves[0] == 1 && waves[1] == 0:
+				waves[0], waves[1] = 0, 1
+			case waves[0] == 0 && waves[1] == 1:
+				waves[0], waves[1] = 1, 1
+			case waves[0] == 1 && waves[1] == 1:
+				waves[0], waves[1] = 0, 0
+			}
 		}
 	}
 }
